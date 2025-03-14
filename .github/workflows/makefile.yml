@@ -1,0 +1,67 @@
+name: Build iOS Dylib with Theos-Jailed
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        
+      - name: Set up environment
+        run: |
+          brew install ldid xz
+          sudo gem install cocoapods
+          
+      - name: Install Theos
+        run: |
+          git clone --recursive https://github.com/theos/theos.git $HOME/theos
+          echo "THEOS=$HOME/theos" >> $GITHUB_ENV
+          echo "PATH=$PATH:$HOME/theos/bin" >> $GITHUB_ENV
+          
+      - name: Install Theos-Jailed
+        run: |
+          git clone https://github.com/kabiroberai/theos-jailed.git $HOME/theos/modules/theos-jailed
+          cd $HOME/theos/modules/theos-jailed
+          make setup
+          
+      - name: Set up code signing
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE }}
+          P12_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          MOBILEPROVISION_BASE64: ${{ secrets.IOS_MOBILEPROVISION }}
+        run: |
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          
+          echo $BUILD_CERTIFICATE_BASE64 | base64 --decode > certificate.p12
+          security create-keychain -p "" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "" build.keychain
+          security import certificate.p12 -k build.keychain -P $P12_PASSWORD -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "" build.keychain
+          
+          echo $MOBILEPROVISION_BASE64 | base64 --decode > profile.mobileprovision
+          cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
+          
+      - name: Build Dylib
+        run: |
+          export THEOS_DEVICE_IP=none
+          export TARGET=iphone:clang:latest:14.0
+          
+          make clean
+          make package
+          
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: built-dylib
+          path: |
+            packages/*.deb
+            .theos/obj/debug/*.dylib
