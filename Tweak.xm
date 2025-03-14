@@ -1,198 +1,322 @@
-#include <iostream>
-#include <string>
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import <objc/runtime.h>
-#import <substrate.h>
 
-//No func
-static BOOL returnNo(id self, SEL _cmd) {
-    return NO;
+// 引入 substrate 庫用於方法鉤子
+#import "substrate.h"
+
+// 設定偏好鍵名稱
+static NSString *const kSpeedAdsEnabledKey = @"com.little34306.jailedspeedads.enabled";
+
+// 控制按鈕類定義
+@interface SpeedAdsControlButton : UIButton
+@end
+
+@implementation SpeedAdsControlButton {
+    BOOL _isEnabled;
 }
 
-//Find almost function that contains ads in almost games apps
-void hookMethods() {
-    MSHookMessageEx(objc_getClass("GADAdSource"), @selector(invalidated), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("ALMediationServiceAdDelegateProxy"), @selector(didLoadAd:withExtraInfo:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("AdsHandler"), @selector(pauseAll:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("AdsHandler"), @selector(clear), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("AdsHandler"), @selector(setPossibleAdsPerHour:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("AdsHandler"), @selector(init), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("AdsHandler"), @selector(clearTimeSinceLiveStarted), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("AdsHandler"), @selector(updateTimeSinceLiveStarted), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("BasePlayerView"), @selector(OnPlayer_AdStarted:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("FullScreenViewTVAIS"), @selector(getLastPlayedChannel), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("FullScreenViewTVAIS"), @selector(startPlayChannel:forceStart:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("RFQVideoPlayer"), @selector(checkIsPreviewEnded), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("RFQVideoPlayerAd"), @selector(onAdStartedPlay), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("RFQVideoPlayerAd"), @selector(adShouldStartPlay), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("RFQVideoPlayerAd"), @selector(setAdShouldStartPlay:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("RSVodHead"), @selector(isPreview), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("RSVodHead"), @selector(isPreviewEnded), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("RSVodHead"), @selector(setIsPreview:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("RSVodHead"), @selector(setIsPreviewEnded:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("TAGPreviewManager"), @selector(isPreviewingContainer:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("TabBarBaseVC"), @selector(OnHeadLoadSuccess), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("UMPConsentInformation"), @selector(canRequestAds), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("XmppVCardInfo"), @selector(hasAnyAds), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("XmppVCardInfo"), @selector(hasNativeAds), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("XmppVCardInfo"), @selector(hasRegularAds), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("SCSnapAdsAdResponsePersistentCache"), @selector(_getAdResponse:removeAdResponseOnHit:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("SCSnapAdsAdSourceConfig"), @selector(shouldDisableServeRequest), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("SCSnapAdsAdSourceConfig"), @selector(protoServeEndpoint), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("SCSnapAdsAdSourceConfig"), @selector(protoInitEndpoint), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("SCSnapAdsDynamicAdMediaManagerImpl"), @selector(removeMediaDataSource:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("SCSnapAdsOnDeviceInfoRecordCoordinator"), @selector(_handleRemoveOnDeviceInfoRecordsWithSuccess:completionBlock:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("SCSnapAdsOnDeviceInfoRecordCoordinator"), @selector(removeAllOnDeviceInfoRecordsForSaid:completionQueue:completionBlock:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("SCSnapAdsServeResponseDataStore"), @selector(_removeAdResponseForIdentifier:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("SCSnapAdsServeResponseDataStore"), @selector(removeAdResponseForIdentifier:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("NSNetService"), @selector(publish), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("NSNetService"), @selector(stop), (IMP)returnNo, NULL);
-    //MSHookMessageEx(objc_getClass("NSNetService"), @selector(dealloc), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("NSNetService"), @selector(addresses), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("NSNetService"), @selector(initWithCFNetService:), (IMP)returnNo, NULL);
-    //MSHookMessageEx(objc_getClass("NSNetServiceBrowser"), @selector(dealloc), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("NSNetServiceBrowser"), @selector(stop), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("NSURLConnectionInternalConnection"), @selector(cancelAuthenticationChallenge:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("NSURLConnectionInternalConnection"), @selector(_timingData), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("NSURLSessionTaskHTTPAuthenticator"), @selector(sessionTaskHTTPAuthenticatorWithContext:statusCodes:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("NSURLSessionTaskHTTPAuthenticator"), @selector(setStatusCodes:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("NSURLSessionTaskLocalHTTPAuthenticator"), @selector(externalAuthenticator), (IMP)returnNo, NULL);
-    //MSHookMessageEx(objc_getClass("NWStreamPair"), @selector(dealloc), (IMP)returnNo, NULL);
-    //MSHookMessageEx(objc_getClass("__NSCFURLLocalStreamTaskFromDataTaskDataBlobby"), @selector(dealloc), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("__NSCFURLSessionTaskGroup"), @selector(dataTaskWithRequest:completionHandler:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("__NSCFURLSessionTaskGroup"), @selector(forwardingTargetForSelector:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("__NSCFURLSessionTaskGroup"), @selector(dataTaskWithRequest:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("__NSCFURLSessionTaskGroup"), @selector(uploadTaskWithStreamedRequest:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("__NSCFURLSessionTaskGroup"), @selector(_groupConfiguration), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("__NSCFURLSessionTaskGroup"), @selector(_groupSession), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("NSURLConnectionInternal"), @selector(useCredential:forAuthenticationChallenge:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("NSURLConnectionInternal"), @selector(_timingData), (IMP)returnNo, NULL);
-    //MSHookMessageEx(objc_getClass("NSURLSessionTaskBackgroundHTTPAuthenticator"), @selector(dealloc), (IMP)returnNo, NULL);
-    //MSHookMessageEx(objc_getClass("NSURLSessionTaskDependency"), @selector(dealloc), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("__NSCFURLSessionXPC"), @selector(initialize), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("FPUserCredentials"), @selector(adremoval_enabled), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("ALIncentivizedInterstitialAd"), @selector(isReadyForDisplay), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("ALMediatedAd"), @selector(isReady), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("ALStoreKitProductViewController"), @selector(isReady), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("ALStoreProductViewControllerWrapper"), @selector(isReady), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("FBAdDSLBridgeViewController"), @selector(isReadyToPresent), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("IMAAd"), @selector(isSkippable), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("IMAAd"), @selector(isUiDisabled), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("ISAdMobBannerAdapter"), @selector(isLargeScreen), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("ISBaseAdUnitInteractionSmash"), @selector(isReadyToShow), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("ISBaseAdUnitManager"), @selector(isReadyToShow), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("ISBaseAdUnitSmash"), @selector(isReadyToShow), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("ISDemandOnlyIsSmash"), @selector(isReadyToShow), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("ISDemandOnlyRvSmash"), @selector(isReadyToShow), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("ISLWSProgRvSmash"), @selector(isReadyToShow), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("ISProgIsSmash"), @selector(isReadyToShow), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("MAAd"), @selector(isReady), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("MAAppOpenAd"), @selector(isReady), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("MAFullscreenAdController"), @selector(isReady), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("MAInterstitialAd"), @selector(isReady), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("MARewardedAd"), @selector(isReady), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("MARewardedInterstitialAd"), @selector(isReady), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADView"), @selector(initWithFrame:context:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("ALDCreativeDebuggerTableViewDataSource"), @selector(initializeWithDisplayedAds:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("ALMediationAdLoadCoordinator"), @selector(didLoadAd:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("ALMediationSetting"), @selector(fullscreenAdShouldReturnReadyWhenAdLoadIsInProgress), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADBannerAd"), @selector(adView), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADBannerAd"), @selector(videoController), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADCustomEventBannerAdRenderer"), @selector(renderWithServerTransaction:adConfiguration:completionHandler:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADFullScreenAdViewController"), @selector(viewWillAppear:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADFullScreenAdViewController"), @selector(presented), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADFullScreenAdViewController"), @selector(canPresentFromViewController:error:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADInlineInterstitialAdRenderer"), @selector(renderWithServerTransaction:adConfiguration:completionHandler:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADInlineMultipleNativeAdsRenderer"), @selector(renderWithServerTransaction:adConfiguration:completionHandler:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADInlineMultipleNativeAdsRenderer"), @selector(init), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADMediationBannerAdRenderer"), @selector(renderWithServerTransaction:adConfiguration:completionHandler:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADMediationBannerAdRenderer"), @selector(adapter:didReceiveAdView:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADRTBMediationBannerAdRenderer"), @selector(renderWithServerTransaction:adConfiguration:completionHandler:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADUnifiedMediationBannerAdRenderer"), @selector(renderWithServerTransaction:adConfiguration:completionHandler:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("MANativeAdSource"), @selector(isAdLoading), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADInlineBannerAdRenderer"), @selector(renderWithServerTransaction:adConfiguration:completionHandler:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("RNGoogleMobileAdsBannerComponent"), @selector(didSetProps:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("RNGoogleMobileAdsBannerComponent"), @selector(banner), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("RNGoogleMobileAdsBannerComponent"), @selector(requested), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("RNGoogleMobileAdsBannerComponent"), @selector(setBanner:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("RNGoogleMobileAdsBannerComponent"), @selector(request), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("RNGoogleMobileAdsBannerComponent"), @selector(propsChanged), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("RNGoogleMobileAdsBannerComponent"), @selector(onNativeEvent), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("RNGoogleMobileAdsBannerComponent"), @selector(setPropsChanged:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("RNGoogleMobileAdsBannerViewManager"), @selector(view), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("RNGoogleMobileAdsBannerViewManager"), @selector(methodQueue), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("RNGoogleMobileAdsBannerViewManager"), @selector(propConfig_unitId), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("RNGoogleMobileAdsBannerViewManager"), @selector(propConfig_sizes), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("RNGoogleMobileAdsBannerViewManager"), @selector(propConfig_onNativeEvent), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("RNGoogleMobileAdsBannerViewManager"), @selector(propConfig_manualImpressionsEnabled), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("RNGoogleMobileAdsBannerViewManager"), @selector(recordManualImpression:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("RNGoogleMobileAdsBannerViewManager"), @selector(bridge), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("RNGoogleMobileAdsBannerViewManager"), @selector(propConfig_request), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("VungleURLConfiguration"), @selector(setAdsURL:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADAdRenderResult"), @selector(rendererClassString), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADAdRenderResult"), @selector(setRendererClassString:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADInlineSingleNativeAdRenderer"), @selector(init), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADInternalBannerView"), @selector(callBackAdViewDidReceiveAd), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADMediatedAdRenderer"), @selector(adapter:didReceiveAdView:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADBannerView"), @selector(bannerViewDidReceiveAd:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADBannerView"), @selector(bannerView:didFailToReceiveAdWithError:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADBannerView"), @selector(bannerViewDidRecordImpression:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADBannerView"), @selector(bannerViewWillPresentScreen:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADBannerView"), @selector(adViewIntrinsicContentSizeDidChange:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADBannerView"), @selector(setAutoloadEnabled:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADBannerView"), @selector(setAdUnitID:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADBannerView"), @selector(loadRequest:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("_TtC9BusTaiwan20YBGoogleBannerAdView"), @selector(loadAd), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("ALAdLoadState"), @selector(isWaitingForAd), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("ALAdLoadState"), @selector(setIsWaitingForAd:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("ALAdService"), @selector(hasPreloadedAdOfSize:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("ALAdService"), @selector(hasPreloadedAdForZoneIdentifier:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("ALFullScreenAdTracker"), @selector(isFullScreenAdShowing), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("ALMediationAdLoadState"), @selector(isWaitingForAd), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("ALMediationAdLoadState"), @selector(setIsWaitingForAd:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("ALMediationAdapterRouter"), @selector(isAdShowingForAdapter:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("ALNativeAdService"), @selector(loadNextAdAndNotify:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("APMPersistedConfig"), @selector(allowPersonalizedAds), (IMP)returnNo, NULL);
+// 檢查偏好設置中是否啟用廣告加速
+static BOOL isSpeedAdsEnabled() {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    if ([defaults objectForKey:kSpeedAdsEnabledKey] == nil) {
+        return YES; // 默認啟用
+    }
+    return [defaults boolForKey:kSpeedAdsEnabledKey];
+}
+
+// 設置廣告加速狀態
+static void setSpeedAdsEnabled(BOOL enabled) {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setBool:enabled forKey:kSpeedAdsEnabledKey];
+    [defaults synchronize];
+}
+
+// 初始化控制按鈕
+- (instancetype)init {
+    if (self = [super init]) {
+        _isEnabled = isSpeedAdsEnabled();
+        
+        // 設置按鈕外觀
+        self.frame = CGRectMake(20, 120, 110, 44);
+        self.layer.cornerRadius = 22;
+        self.backgroundColor = _isEnabled ? 
+            [UIColor colorWithRed:0.0 green:0.7 blue:0.0 alpha:0.8] : 
+            [UIColor colorWithRed:0.7 green:0.0 blue:0.0 alpha:0.8];
+        [self setTitle:_isEnabled ? @"廣告加速: 開" : @"廣告加速: 關" forState:UIControlStateNormal];
+        self.titleLabel.font = [UIFont boldSystemFontOfSize:14];
+        
+        // 添加陰影提高可見度
+        self.layer.shadowColor = [UIColor blackColor].CGColor;
+        self.layer.shadowOffset = CGSizeMake(0, 2);
+        self.layer.shadowRadius = 4;
+        self.layer.shadowOpacity = 0.5;
+        
+        // 添加點擊事件
+        [self addTarget:self action:@selector(toggleState) forControlEvents:UIControlEventTouchUpInside];
+        
+        // 添加拖動手勢
+        UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] 
+                                             initWithTarget:self action:@selector(handlePan:)];
+        [self addGestureRecognizer:panGesture];
+    }
+    return self;
+}
+
+// 切換按鈕狀態
+- (void)toggleState {
+    _isEnabled = !_isEnabled;
+    setSpeedAdsEnabled(_isEnabled);
     
-    MSHookMessageEx(objc_getClass("NSNetService"), sel_getUid("dealloc"), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("NSNetServiceBrowser"), sel_getUid("dealloc"), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("NWStreamPair"), sel_getUid("dealloc"), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("__NSCFURLLocalStreamTaskFromDataTaskDataBlobby"), sel_getUid("dealloc"), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("NSURLSessionTaskBackgroundHTTPAuthenticator"), sel_getUid("dealloc"), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("NSURLSessionTaskDependency"), sel_getUid("dealloc"), (IMP)returnNo, NULL);
-
-    //also return no for jb detect
-    MSHookMessageEx(objc_getClass("BUDeviceHelper"), @selector(bu_isJailBroken), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("EBAppLogDeviceHelper"), @selector(isJailBroken), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADMinimumVersionSupport"), @selector(OSIsSupported), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADOMIDAdSessionRegistry"), @selector(isActive), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADOMIDAdSessionRegistry"), @selector(removeAdSession:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADOMIDAdSessionRegistry"), @selector(adSessions), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADOMIDAdSessionRegistry"), @selector(activeAdSessions), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("GADOMIDAdSessionRegistry"), @selector(addAdSession:), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("HMDBUInfo"), @selector(isJailBroken), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("MobClick"), @selector(isJailbroken), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("MobClick"), @selector(isPirated), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("SSEDeviceStatus"), @selector(jailBroken), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("UMUtils"), @selector(isDeviceJailBreak), (IMP)returnNo, NULL);
-    MSHookMessageEx(objc_getClass("UMUtils"), @selector(isAppPirate), (IMP)returnNo, NULL);
+    // 更新按鈕外觀
+    self.backgroundColor = _isEnabled ? 
+        [UIColor colorWithRed:0.0 green:0.7 blue:0.0 alpha:0.8] : 
+        [UIColor colorWithRed:0.7 green:0.0 blue:0.0 alpha:0.8];
+    [self setTitle:_isEnabled ? @"廣告加速: 開" : @"廣告加速: 關" forState:UIControlStateNormal];
+    
+    // 顯示狀態變更通知
+    UIWindow *window = self.window;
+    if (window) {
+        UINotificationFeedbackGenerator *feedback = [[UINotificationFeedbackGenerator alloc] init];
+        [feedback prepare];
+        [feedback notificationOccurred:UINotificationFeedbackTypeSuccess];
+        
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 200, 40)];
+        label.center = CGPointMake(window.frame.size.width / 2, window.frame.size.height / 2);
+        label.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.8];
+        label.textColor = [UIColor whiteColor];
+        label.textAlignment = NSTextAlignmentCenter;
+        label.font = [UIFont systemFontOfSize:16 weight:UIFontWeightMedium];
+        label.text = _isEnabled ? @"廣告加速已開啟" : @"廣告加速已關閉";
+        label.layer.cornerRadius = 10;
+        label.layer.masksToBounds = YES;
+        
+        [window addSubview:label];
+        
+        // 動畫顯示和消失
+        label.alpha = 0;
+        [UIView animateWithDuration:0.3 animations:^{
+            label.alpha = 1;
+        } completion:^(BOOL finished) {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [UIView animateWithDuration:0.3 animations:^{
+                    label.alpha = 0;
+                } completion:^(BOOL finished) {
+                    [label removeFromSuperview];
+                }];
+            });
+        }];
+    }
 }
 
-// Initialize the tweak
-__attribute__((constructor))
-static void initialize() {
-    hookMethods();
+// 處理拖動手勢
+- (void)handlePan:(UIPanGestureRecognizer *)gesture {
+    CGPoint translation = [gesture translationInView:self.superview];
+    
+    self.center = CGPointMake(self.center.x + translation.x, self.center.y + translation.y);
+    [gesture setTranslation:CGPointZero inView:self.superview];
+    
+    // 確保按鈕在屏幕範圍內
+    if (gesture.state == UIGestureRecognizerStateEnded) {
+        UIWindow *window = self.window;
+        if (window) {
+            CGFloat minX = self.frame.size.width/2 + 10;
+            CGFloat minY = self.frame.size.height/2 + 20;
+            CGFloat maxX = window.frame.size.width - minX;
+            CGFloat maxY = window.frame.size.height - minY;
+            
+            CGPoint center = self.center;
+            if (center.x < minX) center.x = minX;
+            if (center.y < minY) center.y = minY;
+            if (center.x > maxX) center.x = maxX;
+            if (center.y > maxY) center.y = maxY;
+            
+            [UIView animateWithDuration:0.3 animations:^{
+                self.center = center;
+            }];
+        }
+    }
+}
+@end
+
+// 原始方法指針聲明
+static BOOL (*original_GADAdSource_invalidated)(id self, SEL _cmd);
+static BOOL (*original_ALAdView_isReady)(id self, SEL _cmd);
+static id (*original_AVPlayer_initWithURL)(id self, SEL _cmd, id url);
+static id (*original_AVPlayerItem_initWithURL)(id self, SEL _cmd, id url);
+static id (*original_AVPlayerItem_initWithAsset)(id self, SEL _cmd, id asset);
+static void (*original_AVScrubber_setMinValue)(id self, SEL _cmd, float value);
+static void (*original_AVScrubber_setMaxValue)(id self, SEL _cmd, float value);
+static id (*original_UADSMetaData_set)(id self, SEL _cmd, id key, id value);
+
+// 鉤子方法實現
+static BOOL new_GADAdSource_invalidated(id self, SEL _cmd) {
+    if (isSpeedAdsEnabled()) {
+        return NO; // 啟用時，返回NO加速廣告
+    } else {
+        return original_GADAdSource_invalidated(self, _cmd); // 禁用時調用原始方法
+    }
 }
 
-//skip ads if it was a video player
-%hook AVPlayer
-
-- (void)setRate:(float)rate {
- %orig(rate * 600.0f);
+static BOOL new_ALAdView_isReady(id self, SEL _cmd) {
+    if (isSpeedAdsEnabled()) {
+        return YES; // 啟用時，強制廣告就緒
+    } else {
+        return original_ALAdView_isReady(self, _cmd); // 禁用時調用原始方法
+    }
 }
 
-- (float)rate{
- return %orig() * 0.5f;
+// AVPlayer相關鉤子方法 - 用於加速廣告視頻播放
+static id new_AVPlayer_initWithURL(id self, SEL _cmd, id url) {
+    id result = original_AVPlayer_initWithURL(self, _cmd, url);
+    if (isSpeedAdsEnabled()) {
+        if ([url isKindOfClass:objc_getClass("NSURL")]) {
+            NSString *urlString = [url absoluteString];
+            if ([urlString containsString:@"ad"] || [urlString containsString:@"ads"] || 
+                [urlString containsString:@"advertisement"]) {
+                [self setRate:10.0]; // 廣告播放速度設為10倍
+            }
+        }
+    }
+    return result;
 }
 
-%end
+static id new_AVPlayerItem_initWithURL(id self, SEL _cmd, id url) {
+    id result = original_AVPlayerItem_initWithURL(self, _cmd, url);
+    if (isSpeedAdsEnabled()) {
+        if ([url isKindOfClass:objc_getClass("NSURL")]) {
+            NSString *urlString = [url absoluteString];
+            if ([urlString containsString:@"ad"] || [urlString containsString:@"ads"] || 
+                [urlString containsString:@"advertisement"]) {
+                // 設置廣告項目屬性以便加速
+                [result setValue:@(YES) forKey:@"_canPlayFastForward"];
+                [result setValue:@(10.0) forKey:@"_preferredForwardBufferDuration"];
+                [result setValue:@(YES) forKey:@"_usesExternalPlaybackWhileExternalScreenIsActive"];
+            }
+        }
+    }
+    return result;
+}
+
+static id new_AVPlayerItem_initWithAsset(id self, SEL _cmd, id asset) {
+    id result = original_AVPlayerItem_initWithAsset(self, _cmd, asset);
+    if (isSpeedAdsEnabled()) {
+        // 嘗試檢查資產是否為廣告
+        if ([asset respondsToSelector:@selector(URL)]) {
+            NSURL *url = [asset URL];
+            NSString *urlString = [url absoluteString];
+            if ([urlString containsString:@"ad"] || [urlString containsString:@"ads"] || 
+                [urlString containsString:@"advertisement"]) {
+                // 設置廣告項目屬性以便加速
+                [result setValue:@(YES) forKey:@"_canPlayFastForward"];
+                [result setValue:@(10.0) forKey:@"_preferredForwardBufferDuration"];
+            }
+        }
+    }
+    return result;
+}
+
+// AVScrubber相關鉤子 - 用於縮短廣告時間軸
+static void new_AVScrubber_setMinValue(id self, SEL _cmd, float value) {
+    if (isSpeedAdsEnabled()) {
+        // 縮短廣告時間範圍
+        original_AVScrubber_setMinValue(self, _cmd, value);
+    } else {
+        original_AVScrubber_setMinValue(self, _cmd, value);
+    }
+}
+
+static void new_AVScrubber_setMaxValue(id self, SEL _cmd, float value) {
+    if (isSpeedAdsEnabled()) {
+        // 對於廣告，將最大值設為較小值縮短廣告時長
+        if (value > 5.0 && value < 120.0) { // 假設這是普通廣告時長範圍
+            original_AVScrubber_setMaxValue(self, _cmd, value / 10.0);
+        } else {
+            original_AVScrubber_setMaxValue(self, _cmd, value);
+        }
+    } else {
+        original_AVScrubber_setMaxValue(self, _cmd, value);
+    }
+}
+
+// Unity廣告相關鉤子
+static id new_UADSMetaData_set(id self, SEL _cmd, id key, id value) {
+    if (isSpeedAdsEnabled() && [key isKindOfClass:objc_getClass("NSString")]) {
+        NSString *keyString = (NSString *)key;
+        if ([keyString isEqualToString:@"duration"] || [keyString containsString:@"time"]) {
+            // 縮短Unity廣告顯示時間
+            if ([value isKindOfClass:objc_getClass("NSNumber")]) {
+                value = @([value floatValue] / 10.0);
+            }
+        }
+    }
+    return original_UADSMetaData_set(self, _cmd, key, value);
+}
+
+// 鉤子安裝函數
+static void setupHooks() {
+    // 保存原始實現並安裝鉤子
+    MSHookMessageEx(objc_getClass("GADAdSource"), 
+                   @selector(invalidated), 
+                   (IMP)new_GADAdSource_invalidated, 
+                   (IMP *)&original_GADAdSource_invalidated);
+    
+    MSHookMessageEx(objc_getClass("ALAdView"), 
+                   @selector(isReady), 
+                   (IMP)new_ALAdView_isReady, 
+                   (IMP *)&original_ALAdView_isReady);
+    
+    MSHookMessageEx(objc_getClass("AVPlayer"), 
+                   @selector(initWithURL:), 
+                   (IMP)new_AVPlayer_initWithURL, 
+                   (IMP *)&original_AVPlayer_initWithURL);
+    
+    MSHookMessageEx(objc_getClass("AVPlayerItem"), 
+                   @selector(initWithURL:), 
+                   (IMP)new_AVPlayerItem_initWithURL, 
+                   (IMP *)&original_AVPlayerItem_initWithURL);
+    
+    MSHookMessageEx(objc_getClass("AVPlayerItem"), 
+                   @selector(initWithAsset:), 
+                   (IMP)new_AVPlayerItem_initWithAsset, 
+                   (IMP *)&original_AVPlayerItem_initWithAsset);
+    
+    MSHookMessageEx(objc_getClass("AVScrubber"), 
+                   @selector(setMinValue:), 
+                   (IMP)new_AVScrubber_setMinValue, 
+                   (IMP *)&original_AVScrubber_setMinValue);
+    
+    MSHookMessageEx(objc_getClass("AVScrubber"), 
+                   @selector(setMaxValue:), 
+                   (IMP)new_AVScrubber_setMaxValue, 
+                   (IMP *)&original_AVScrubber_setMaxValue);
+    
+    MSHookMessageEx(objc_getClass("UADSMetaData"), 
+                   @selector(set:value:), 
+                   (IMP)new_UADSMetaData_set, 
+                   (IMP *)&original_UADSMetaData_set);
+}
+
+// 添加控制按鈕到界面
+static void addControlButtonToUI() {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        UIWindow *keyWindow = [[UIApplication sharedApplication] keyWindow];
+        if (keyWindow) {
+            SpeedAdsControlButton *controlButton = [[SpeedAdsControlButton alloc] init];
+            [keyWindow addSubview:controlButton];
+            [keyWindow bringSubviewToFront:controlButton];
+        }
+    });
+}
+
+// Tweak入口點
+%ctor {
+    // 初始化鉤子
+    setupHooks();
+    
+    // 添加控制按鈕（延遲執行以確保UI準備就緒）
+    addControlButtonToUI();
+    
+    // 輸出調試信息
+    NSLog(@"[JailedSpeedAds] Tweak initialized! Ad Speed Control enabled.");
+}
