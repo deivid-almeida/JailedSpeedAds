@@ -30,7 +30,7 @@ jobs:
         run: |
           git clone https://github.com/kabiroberai/theos-jailed.git $HOME/theos/modules/theos-jailed
           cd $HOME/theos/modules/theos-jailed
-          make setup
+          bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
           
       - name: Set up code signing
         env:
