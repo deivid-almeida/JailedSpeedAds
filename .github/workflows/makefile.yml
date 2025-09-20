@@ -1,11 +1,8 @@
 name: Build iOS Dylib with Theos-Jailed
 
 on:
-  push:
-    branches: [ main, master, develop ]
-  pull_request:
-    branches: [ main, master ]
-  workflow_dispatch:
+  release:
+    types: [published]  # Jalan saat kamu klik "Publish release"
 
 jobs:
   build:
