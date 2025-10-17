@@ -1,4 +1,4 @@
-name: Build ARM64 DEB Package
+name: Build ARM64 DEB Package (QEMU Docker)
 
 on:
   push:
@@ -13,31 +13,38 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install build dependencies
-        run: |
-          sudo dpkg --add-architecture arm64 || true
-          sudo apt-get update
-          sudo apt-get install -y build-essential dpkg-dev debhelper devscripts debhelper-compat \
-            qemu-user-static binfmt-support crossbuild-essential-arm64
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
 
-      - name: Verify repo layout
-        run: |
-          echo "List repo root:"
-          ls -la
-          if [ ! -d "./debian" ]; then
-            echo "ERROR: directory ./debian not found. Place your Debian packaging files in ./debian" && exit 1
-          fi
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-      - name: Build DEB package for arm64 (cross-build)
+      - name: Ensure qemu-user-static available
+        run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
+      - name: Build DEB inside arm64 container and produce .deb
         env:
-          DEB_BUILD_OPTIONS: nocheck
+          PACKAGE_OUTPUT_DIR: /work/output
         run: |
-          # Build from package root; dpkg-buildpackage will place .deb in parent dir
-          dpkg-buildpackage -us -uc -aarm64
+          docker run --rm \
+            --platform linux/arm64 \
+            -v "${{ github.workspace }}":/work \
+            -w /work \
+            ubuntu:22.04 bash -euxc "
+              apt-get update
+              apt-get install -y --no-install-recommends \
+                dpkg-dev debhelper devscripts debhelper-compat \
+                qemu-user-static crossbuild-essential-arm64 ca-certificates \
+                build-essential fakeroot
+              if [ ! -d ./debian ]; then
+                echo 'ERROR: ./debian not found' >&2; exit 2
+              fi
+              # Build: dpkg-buildpackage will place .deb in parent dir (/)
+              dpkg-buildpackage -us -uc -aarm64
+            "
 
-      - name: Show produced artifacts
+      - name: Collect produced .deb
         run: |
-          echo "Debs in parent dir:"
           ls -la ../*.deb || ls -la ./*.deb || true
 
       - name: Upload DEB package
